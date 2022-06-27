@@ -77,6 +77,10 @@ class PasswordResetController extends Controller
 
         //Delete the token after resetting the password
         $deleteToken = PasswordReset::where('email', $user->email)->delete();
-        dd($deleteToken);
+
+        return response()->json([
+            'msg' => 'Password changed successfully',
+            'status' => 'success',
+        ], 200);
     }
 }
