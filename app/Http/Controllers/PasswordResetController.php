@@ -55,7 +55,28 @@ class PasswordResetController extends Controller
         }
     }
 
-    public function reset(Request $r)
+    public function reset(Request $r, $token)
     {
+        $r->validate([
+            'password' => 'required',
+        ]);
+
+        $passwordreset = PasswordReset::where('token', $token)->first();
+
+        if ($passwordreset == null) {
+            return response()->json([
+                'msg' => 'Token is invalid or expired',
+                'status' => 'failed',
+            ], 404);
+        }
+
+        $user = User::where('email', $passwordreset->email)->first();
+        $user->password = Hash::make($r->password);
+        $user->save();
+
+
+        //Delete the token after resetting the password
+        $deleteToken = PasswordReset::where('email', $user->email)->delete();
+        dd($deleteToken);
     }
 }
